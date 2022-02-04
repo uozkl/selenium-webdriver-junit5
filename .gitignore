@@ -1,1 +1,4 @@
 target/
+.vscode
+allure-results/
+.apt_generated/
