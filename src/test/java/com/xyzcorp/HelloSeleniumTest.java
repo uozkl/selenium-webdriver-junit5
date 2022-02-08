@@ -15,7 +15,7 @@ public class HelloSeleniumTest {
     @BeforeAll
     public static void setup() {
         System.setProperty("webdriver.chrome.driver",
-                "C:\\Users\\zekun.li\\Workspace\\Selenium\\Driver\\97\\chromedriver.exe");
+                "C:\\Users\\zekun.li\\Workspace\\Selenium\\Driver\\98\\chromedriver.exe");
         chromeDriver = new ChromeDriver();
     }
 
