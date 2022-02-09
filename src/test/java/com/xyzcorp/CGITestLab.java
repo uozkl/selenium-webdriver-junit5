@@ -24,11 +24,13 @@ import java.util.Set;
 public class CGITestLab {
     static WebDriver driver;
     static Options options;
+    static CGIPageObj cgiPage;
     String sutUrl = "https://www.cgi.com";
 
     @BeforeAll
     static void setup() {
         driver = WebDriverManager.chromedriver().create();
+        cgiPage = new CGIPageObj(driver);
         // Resize window to avoid mobile view
         driver.manage().window().setSize(new Dimension(1440, 960));
         options = driver.manage();
@@ -48,10 +50,8 @@ public class CGITestLab {
     public void verifyCookiesHasCreated() {
         driver.get(sutUrl);
         Set<Cookie> cookiesBeforeAccept = options.getCookies();
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
+        cgiPage.closeCookieAcceptancePopup();
         Set<Cookie> cookiesAfterAccept = options.getCookies();
-        System.out.println("TC1: num of cookies before:" + cookiesBeforeAccept.size() + ", num of cookies after:"
-                + cookiesAfterAccept.size());
         assertThat(cookiesBeforeAccept).hasSizeLessThan(cookiesAfterAccept.size());
     }
 
@@ -69,20 +69,15 @@ public class CGITestLab {
     @Test
     public void verifyTranslationWorksByURL() {
         driver.get(sutUrl);
-        // Close Cookie acceptace pop-up
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
+        cgiPage.closeCookieAcceptancePopup();
         // By default, it should be English
         assertThat(driver.getCurrentUrl()).contains("en");
-        // Switch Language
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[1]/a")).click();
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[2]/a")).click();
+        cgiPage.switchToFrench();
         assertThat(driver.getCurrentUrl()).contains("fr");
         // Nav to another page
         driver.findElement(By.xpath("//*[@id='hero-banner']/div/div/div/div[2]/div/div/div[1]/div[2]/a")).click();
         assertThat(driver.getCurrentUrl()).contains("fr");
-        // Switch to English
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[2]/a")).click();
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[1]/a")).click();
+        cgiPage.switchToEnglish();
         assertThat(driver.getCurrentUrl()).contains("en");
         // Nav to main page
         driver.findElement(By.xpath("//*[@id='Calque_1']")).click();
@@ -92,23 +87,18 @@ public class CGITestLab {
     @Test
     public void verifyTranslationWorksByContent() {
         driver.get(sutUrl);
-        // Close Cookie acceptace pop-up
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
+        cgiPage.closeCookieAcceptancePopup();
         // By default, it should be English
         assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
                 .isEqualTo("Contact");
-        // Switch Language
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[1]/a")).click();
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[2]/a")).click();
+        cgiPage.switchToFrench();
         assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
                 .isEqualTo("Contactez-nous");
         // Nav to another page
         driver.findElement(By.xpath("//*[@id='hero-banner']/div/div/div/div[2]/div/div/div[1]/div[2]/a")).click();
         assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
                 .isEqualTo("Contactez-nous");
-        // Switch to English
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[2]/a")).click();
-        driver.findElement(By.xpath("//*[@id='block-languageswitcher']/ul/li[1]/a")).click();
+        cgiPage.switchToEnglish();
         assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
                 .isEqualTo("Contact");
         // Nav to main page
@@ -120,36 +110,30 @@ public class CGITestLab {
     @Test
     public void verifySearchButtonHideBanners() {
         driver.get(sutUrl);
-        // Close Cookie acceptace pop-up
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
-        WebElement banner = driver.findElement(By.xpath("//*[@id='main-nav']/div/nav"));
-        assertThat(banner.getAttribute("style")).isEqualTo("display: inline;");
-        // Open search bar
-        driver.findElement(By.xpath("//*[@id='main-nav']/div/div[2]/button")).click();
-        assertThat(banner.getAttribute("style")).isEqualTo("display: none;");
+        cgiPage.closeCookieAcceptancePopup();
+        WebElement banner = cgiPage.getBanner();
+        cgiPage.assertBannerVisible(banner);
+        cgiPage.openSearchBar(banner);
+        cgiPage.assertBannerInvisible(banner);
     }
 
     @Test
     public void verifyCloseSearchBarDisplaysNavBanners() {
         driver.get(sutUrl);
-        // Close Cookie acceptace pop-up
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
-        WebElement banner = driver.findElement(By.xpath("//*[@id='main-nav']/div/nav"));
-        assertThat(banner.getAttribute("style")).isEqualTo("display: inline;");
-        // Open search bar
-        driver.findElement(By.xpath("//*[@id='main-nav']/div/div[2]/button")).click();
-        assertThat(banner.getAttribute("style")).isEqualTo("display: none;");
-        // Close search bar
-        driver.findElement(By.xpath("//*[@id='main-nav']/div/div[1]/div/div")).click();
-        assertThat(banner.getAttribute("style")).isEqualTo("display: inline;");
+        cgiPage.closeCookieAcceptancePopup();
+        WebElement banner = cgiPage.getBanner();
+        cgiPage.assertBannerVisible(banner);
+        cgiPage.openSearchBar(banner);
+        cgiPage.assertBannerInvisible(banner);
+        cgiPage.closeSearchBar(banner);
+        cgiPage.assertBannerVisible(banner);
     }
 
     @Test
     public void verifyContactFormTextFiled() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
         driver.get(sutUrl);
-        // Close Cookie acceptace pop-up
-        driver.findElement(By.xpath("//*[@id='popup-buttons']/button[1]")).click();
+        cgiPage.closeCookieAcceptancePopup();
         // Open Contact Form
         driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).click();
         wait.until(ExpectedConditions
