@@ -71,17 +71,17 @@ public class CGITestLab {
         driver.get(sutUrl);
         cgiPage.closeCookieAcceptancePopup();
         // By default, it should be English
-        assertThat(driver.getCurrentUrl()).contains("en");
+        cgiPage.assertEnglishByURL();
         cgiPage.switchToFrench();
-        assertThat(driver.getCurrentUrl()).contains("fr");
+        cgiPage.assertFrenchByURL();
         // Nav to another page
         driver.findElement(By.xpath("//*[@id='hero-banner']/div/div/div/div[2]/div/div/div[1]/div[2]/a")).click();
-        assertThat(driver.getCurrentUrl()).contains("fr");
+        cgiPage.assertFrenchByURL();
         cgiPage.switchToEnglish();
-        assertThat(driver.getCurrentUrl()).contains("en");
+        cgiPage.assertEnglishByURL();
         // Nav to main page
         driver.findElement(By.xpath("//*[@id='Calque_1']")).click();
-        assertThat(driver.getCurrentUrl()).contains("en");
+        cgiPage.assertEnglishByURL();
     }
 
     @Test
@@ -89,22 +89,17 @@ public class CGITestLab {
         driver.get(sutUrl);
         cgiPage.closeCookieAcceptancePopup();
         // By default, it should be English
-        assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
-                .isEqualTo("Contact");
+        cgiPage.assertEnglishByContent();
         cgiPage.switchToFrench();
-        assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
-                .isEqualTo("Contactez-nous");
+        cgiPage.assertFrenchByContent();
         // Nav to another page
         driver.findElement(By.xpath("//*[@id='hero-banner']/div/div/div/div[2]/div/div/div[1]/div[2]/a")).click();
-        assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
-                .isEqualTo("Contactez-nous");
+        cgiPage.assertFrenchByContent();
         cgiPage.switchToEnglish();
-        assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
-                .isEqualTo("Contact");
+        cgiPage.assertEnglishByContent();
         // Nav to main page
         driver.findElement(By.xpath("//*[@id='Calque_1']")).click();
-        assertThat(driver.findElement(By.xpath("//*[@id='block-cgicontactusblockcontact']/a")).getText())
-                .isEqualTo("Contact");
+        cgiPage.assertEnglishByContent();
     }
 
     @Test
